@@ -1,7 +1,9 @@
-python -m venv venv
+```python -m venv venv```
 
-.\venv\Scripts\activate
+```.\venv\Scripts\activate```
 
-pip install -r requirements.txt
+```pip install -r requirements.txt```
 
-python .\docevendas_bot.py    
+Populate 'secrets.py' with token
+
+```python .\docevendas_bot.py```
