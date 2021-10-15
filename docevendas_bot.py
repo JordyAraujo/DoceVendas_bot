@@ -1,43 +1,47 @@
+from Controllers.bot_controller import *
 import logging
-import secrets
+import os
+import sys
 
-from telegram import Update, ForceReply
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-
-# Enable logging
+# Logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 
 logger = logging.getLogger(__name__)
 
-def start(update: Update, context: CallbackContext) -> None:
-    """Envia uma mensagem quando o Bot é iniciado (comando /start no Telegram)."""
-    user = update.effective_user
-    update.message.reply_markdown_v2(
-        fr'Olá {user.mention_markdown_v2()}\!',
-        reply_markup=ForceReply(selective=True),
-    )
-
-
-def echo(update: Update, context: CallbackContext) -> None:
-    """Repete a mensagem enviada pelo usuário."""
-    update.message.reply_text(update.message.text)
+# Getting mode, so we could define run function for local and Heroku setup
+mode = os.getenv("MODE")
+TOKEN = os.getenv("TOKEN")
+if mode == "dev":
+    def run(updater):
+        updater.start_polling()
+elif mode == "prod":
+    def run(updater):
+        PORT = int(os.environ.get("PORT", "8443"))
+        HEROKU_APP_NAME = os.environ.get("HEROKU_APP_NAME")
+        # Code from https://github.com/python-telegram-bot/python-telegram-bot/wiki/Webhooks#heroku
+        updater.start_webhook(listen="0.0.0.0",
+                              port=PORT,
+                              url_path=TOKEN)
+        updater.bot.set_webhook("https://{}.herokuapp.com/{}".format(HEROKU_APP_NAME, TOKEN))
+else:
+    logger.error("No MODE specified!")
+    sys.exit(1)
 
 
 def main() -> None:
     """Inicia o bot."""
     # Cria o "Updater" com o token do Bot.
-    updater = Updater(secrets.token)
+    updater = Updater(TOKEN)
 
     # Seta o "dispatcher" para registrar os manipuladores
     dispatcher = updater.dispatcher
 
     # Seta o comando /start para chamar sua respectiva função
     dispatcher.add_handler(CommandHandler("start", start))
-
-    # Quando a mensagem não for um comando, chama a função 'echo'
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
+    dispatcher.add_handler(CommandHandler("total", total))
+    dispatcher.add_handler(CommandHandler("cliente",cliente))
 
     # Inicia o Bot de fato
     updater.start_polling()
