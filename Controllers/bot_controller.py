@@ -18,11 +18,6 @@ def start(update: Update, context: CallbackContext) -> None:
     )
 
 
-def echo(update: Update, context: CallbackContext) -> None:
-    """Repete a mensagem enviada pelo usuário."""
-    update.message.reply_text(update.message.text)
-
-
 def total(update: Update, context: CallbackContext) -> None:
     """Retorna o valor de todas as vendas"""
     total = 0
@@ -63,6 +58,7 @@ def cliente_mensagem(vendas_itens):
         detalhamento.append((venda_item.produto_id.nome, venda_item.quantidade, venda_item.valor))
     total_formatado = locale.currency(total, grouping=True)
     for item, quantidade, valor in detalhamento:
-        tabela.add_row([item, f'{quantidade:.2f}', f'{valor:.3f}'])
+        tabela.add_row(
+            [item, f'{quantidade}', f'{locale.currency(valor, grouping=True)}'])
 
     return 'Pedido ' + venda_id + '\nValor: ' + total_formatado + f'<pre>{tabela}</pre>'
