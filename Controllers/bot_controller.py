@@ -4,6 +4,7 @@ from Models.Venda import Venda
 from telegram import Update, ForceReply, ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import locale
+import prettytable
 
 locale.setlocale(locale.LC_MONETARY, 'pt_BR.UTF-8')
 
@@ -35,8 +36,7 @@ def total(update: Update, context: CallbackContext) -> None:
 def total_mensagem(total):
     """Retorna mensagem da função total formatada e estilizada"""
     total_formatado = locale.currency(total, grouping=True)
-    mensagem = "Total de vendas: " + total_formatado
-    return mensagem
+    return "Total de vendas: " + total_formatado
 
 
 def cliente(update: Update, context: CallbackContext) -> None:
@@ -51,14 +51,18 @@ def cliente(update: Update, context: CallbackContext) -> None:
 
 def cliente_mensagem(vendas_itens):
     """Retorna mensagem da função cliente formatada e estilizada"""
+    tabela = prettytable.PrettyTable(['Item', 'Quantidade', 'Valor'])
+    tabela.align['Item'] = 'l'
+    tabela.align['Quantidade'] = 'r'
+    tabela.align['Valor'] = 'r'
     venda_id = str(vendas_itens[0].venda_id)
     total = 0
-    detalhamento = ''
+    detalhamento = []
     for venda_item in vendas_itens:
         total += venda_item.valor * venda_item.quantidade
-        detalhamento += '\n' + venda_item.produto_id.nome + ' / ' + str(venda_item.quantidade) + ' / ' + str(venda_item.valor)
+        detalhamento.append((venda_item.produto_id.nome, venda_item.quantidade, venda_item.valor))
     total_formatado = locale.currency(total, grouping=True)
+    for item, quantidade, valor in detalhamento:
+        tabela.add_row([item, f'{quantidade:.2f}', f'{valor:.3f}'])
 
-    mensagem = 'Pedido ' + venda_id + '\nValor: ' + total_formatado + '\n' + \
-        "Item / Quantidade / Valor" + detalhamento
-    return mensagem
+    return 'Pedido ' + venda_id + '\nValor: ' + total_formatado + f'<pre>{tabela}</pre>'
