@@ -1,6 +1,10 @@
-from Models import Produto, Cliente, Venda, VendasItens
+from Models.Produto import *
+from Models.Cliente import *
+from Models.Venda import *
+from Models.VendasItens import *
 from csv import reader
 import glob
+import peewee
 
 if __name__ == '__main__':
     try:

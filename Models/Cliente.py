@@ -1,4 +1,5 @@
-import BaseModel
+from .BaseModel import BaseModel
+import peewee
 
 class Cliente(BaseModel):
     id = peewee.IntegerField(primary_key=True)
