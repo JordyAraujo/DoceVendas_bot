@@ -5,6 +5,11 @@ from Models.VendasItens import *
 from csv import reader
 import glob
 import peewee
+import datetime
+
+def formata_data(data):
+    return datetime.date(year=int(data.split("/")[2]), month=int(data.split("/")[1]), day=int(data.split("/")[0]))
+
 
 if __name__ == '__main__':
     try:
@@ -52,6 +57,11 @@ if __name__ == '__main__':
         elif tabela == 'produto':
             Produto.insert_many(tuplas, fields=[Produto.id, Produto.nome]).execute()
         elif tabela == 'venda':
+            for i, tupla in enumerate(tuplas):
+                lista = list(tupla)
+                lista[2] = formata_data(tupla[2])
+                tuplas[i] = tuple(lista)
+
             Venda.insert_many(tuplas, fields=[Venda.id, Venda.cliente_id, Venda.data]).execute()
         elif tabela == 'venda_itens':
             VendasItens.insert_many(tuplas, fields=[VendasItens.id, VendasItens.venda_id, VendasItens.produto_id, VendasItens.valor, VendasItens.quantidade]).execute()

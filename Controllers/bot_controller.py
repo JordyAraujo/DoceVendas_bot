@@ -1,5 +1,7 @@
 from Models.VendasItens import VendasItens
-from telegram import Update, ForceReply
+from Models.Cliente import Cliente
+from Models.Venda import Venda
+from telegram import Update, ForceReply, ParseMode
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 import locale
 
@@ -29,8 +31,34 @@ def total(update: Update, context: CallbackContext) -> None:
 
     update.message.reply_text(total_mensagem(total))
 
+
 def total_mensagem(total):
-    """Retorna mensagem de total formatada e estilizada"""
+    """Retorna mensagem da função total formatada e estilizada"""
     total_formatado = locale.currency(total, grouping=True)
     mensagem = "Total de vendas: " + total_formatado
+    return mensagem
+
+
+def cliente(update: Update, context: CallbackContext) -> None:
+    cliente_id = context.args[0]
+    venda = Venda.select().order_by(Venda.data.desc()).limit(
+        1).where(Venda.cliente_id == cliente_id).get()
+    vendas_itens = VendasItens.select(VendasItens).where(
+        VendasItens.venda_id == venda.id)
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text=cliente_mensagem(vendas_itens), parse_mode=ParseMode.HTML)
+
+
+def cliente_mensagem(vendas_itens):
+    """Retorna mensagem da função cliente formatada e estilizada"""
+    venda_id = str(vendas_itens[0].venda_id)
+    total = 0
+    detalhamento = ''
+    for venda_item in vendas_itens:
+        total += venda_item.valor * venda_item.quantidade
+        detalhamento += '\n' + venda_item.produto_id.nome + ' / ' + str(venda_item.quantidade) + ' / ' + str(venda_item.valor)
+    total_formatado = locale.currency(total, grouping=True)
+
+    mensagem = 'Pedido ' + venda_id + '\nValor: ' + total_formatado + '\n' + \
+        "Item / Quantidade / Valor" + detalhamento
     return mensagem

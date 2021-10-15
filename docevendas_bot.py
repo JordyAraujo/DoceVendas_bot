@@ -21,6 +21,7 @@ def main() -> None:
     # Seta o comando /start para chamar sua respectiva função
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("total", total))
+    dispatcher.add_handler(CommandHandler("cliente",cliente))
 
     # Quando a mensagem não for um comando, chama a função 'echo'
     dispatcher.add_handler(MessageHandler(
