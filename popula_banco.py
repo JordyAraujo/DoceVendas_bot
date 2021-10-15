@@ -37,24 +37,21 @@ if __name__ == '__main__':
 
     caminho = ".\data\*.csv"
     for arquivo in glob.glob(caminho):
-        list_of_tuples = []
-        # open file in read mode
+        tuplas = []
         with open(arquivo, 'r') as obj:
-            # pass the file object to reader() to get the reader object
-            csv_reader = reader(obj)
-            # Get all rows of csv from csv_reader object as list of tuples
-            list_of_tuples = list(map(tuple, csv_reader))
+            csv = reader(obj)
+            tuplas = list(map(tuple, csv))
 
 
-        del list_of_tuples[0]
+        del tuplas[0]
         tabela = arquivo.split("\\")[2].split(".")[0]
 
         registros = []
         if tabela == 'cliente':
-            Cliente.insert_many(list_of_tuples, fields=[Cliente.id, Cliente.nome]).execute()
+            Cliente.insert_many(tuplas, fields=[Cliente.id, Cliente.nome]).execute()
         elif tabela == 'produto':
-            Produto.insert_many(list_of_tuples, fields=[Produto.id, Produto.nome]).execute()
+            Produto.insert_many(tuplas, fields=[Produto.id, Produto.nome]).execute()
         elif tabela == 'venda':
-            Venda.insert_many(list_of_tuples, fields=[Venda.id, Venda.cliente_id, Venda.data]).execute()
+            Venda.insert_many(tuplas, fields=[Venda.id, Venda.cliente_id, Venda.data]).execute()
         elif tabela == 'venda_itens':
-            VendasItens.insert_many(list_of_tuples, fields=[VendasItens.id, VendasItens.venda_id, VendasItens.produto_id, VendasItens.valor, VendasItens.quantidade]).execute()
+            VendasItens.insert_many(tuplas, fields=[VendasItens.id, VendasItens.venda_id, VendasItens.produto_id, VendasItens.valor, VendasItens.quantidade]).execute()

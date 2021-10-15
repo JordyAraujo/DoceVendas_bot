@@ -3,6 +3,7 @@ from .Produto import Produto
 from .BaseModel import BaseModel
 import peewee
 
+
 class VendasItens(BaseModel):
     id = peewee.IntegerField(primary_key=True)
     venda_id = peewee.ForeignKeyField(Venda)
